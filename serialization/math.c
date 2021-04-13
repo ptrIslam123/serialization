@@ -1,5 +1,5 @@
 #include "math.h"
-#define DEBUG_MATH
+//#define DEBUG_MATH
 
 
 point2D_t*  
@@ -61,8 +61,8 @@ print_vector(const char* msg, vector_t* v)
 void       
 write_point2D_to_file(FILE* file, point2D_t* p)
 {
-    int32_t x = convert_to_int32(p->x_);
-    int32_t y = convert_to_int32(p->y_);
+    int32_t x = htonl( convert_to_int32(p->x_) );
+    int32_t y = htonl( convert_to_int32(p->y_) );
 
     fwrite(&x, sizeof(int32_t), 1, file);
     fwrite(&y, sizeof(int32_t), 1, file);
@@ -78,6 +78,9 @@ read_point2D_from_file(FILE* file, point2D_t** p)
     fread(&x, sizeof(int32_t), 1, file);
     fread(&y, sizeof(int32_t), 1, file);
 
+    x = ntohl(x);
+    y = ntohl(y);
+
     *p = make_point2D(convert_to_int(x), convert_to_int(y));
 
     #ifdef DEBUG_MATH
@@ -91,7 +94,7 @@ read_point2D_from_file(FILE* file, point2D_t** p)
 void        
 write_vector_to_file(FILE* file, vector_t* v)
 {
-    int32_t size    = convert_to_int32(v->size_);
+    int32_t size    = htonl( convert_to_int32(v->size_) );
     int32_t* points = convert_to_int32_array(v->points_, v->size_);
 
     fwrite(&size, sizeof(int32_t), 1, file);
@@ -106,8 +109,9 @@ read_vector_from_file(FILE* file, vector_t** v)
     int32_t* points = NULL;
 
     fread(&size, sizeof(int32_t), 1, file);
-
-    points = malloc(sizeof(int32_t) * size);
+    
+    size            = ntohl(size);
+    points          = malloc(sizeof(int32_t) * size);
 
     fread(points, sizeof(int32_t), size, file);
 
@@ -130,19 +134,6 @@ read_vector_from_file(FILE* file, vector_t** v)
 }
 
 
-int32_t     
-convert_to_int32(int val)
-{
-    return (int32_t)(val);
-}
-
-
-int         
-convert_to_int(int32_t val)
-{
-    return (int)val;
-}
-
 
 int*        
 convert_to_int_array(int32_t* arr, uint32_t size)
@@ -151,7 +142,7 @@ convert_to_int_array(int32_t* arr, uint32_t size)
 
     for (int i = 0; i < convert_to_int(size); ++i)
     {
-        new_arr[i] = convert_to_int(arr[i]);
+        new_arr[i] = ntohl( convert_to_int(arr[i]) );
     }
 
     return new_arr;
@@ -165,8 +156,24 @@ convert_to_int32_array(int* arr, unsigned int size)
 
     for (int i = 0; i < size; ++i)
     {
-        new_arr[i] = convert_to_int32(arr[i]);
+        new_arr[i] = htonl( convert_to_int32(arr[i]) );
     }
 
     return new_arr;
+}
+
+
+inline
+int32_t     
+convert_to_int32(int val)
+{
+    return (int32_t)val;
+}
+
+
+inline
+int         
+convert_to_int(int32_t val)
+{
+    return (int)val;
 }

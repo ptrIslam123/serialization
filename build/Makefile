@@ -33,7 +33,7 @@ ar.libsrc:
 
 
 set_ld_library_path:
-	LD_LIBRARY_PATH=$(LIB_PATH) : ${LD_LIBRARY_PATH}
+	LD_LIBRARY_PATH=$(LIB_PATH):${LD_LIBRARY_PATH}
 	export LD_LIBRARY_PATH
 
 

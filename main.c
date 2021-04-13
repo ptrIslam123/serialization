@@ -1,10 +1,21 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include "serialization/math.h"
 
-
-int data[]          = {1, 2, 3};
+int data[]          = {1, 2, 3, 45, 34, 567, 12, 34, 555, 67, 8};
 const int size_data = sizeof(data)/ sizeof(data[0]);
 const char* fname   = "data.txt";
+
+unsigned int compare_two_array(int* arr1, int* arr2, unsigned int size)
+{
+    for (unsigned int i = 0; i < size; ++i)
+    {
+        if (arr1[i] != arr2[i])
+            return 0;
+    }
+
+    return 1;
+}
 
 int main(int argc , char** argv)
 {
@@ -36,13 +47,20 @@ int main(int argc , char** argv)
         print_point2D("read(p)", p);
         print_vector("read(v)", v);
         
+        if (!compare_two_array(data, v->points_, size_data))
+        {
+            fprintf(stderr, "error of serialization struct point2D or/and vector\n");
+            return -1;
+        }
+
         fclose(file);
     }
     else
-    {   
-        printf("main is not hav input valid argument!\n");
+    {
+        fprintf(stderr, "ERROR: this program dos not have [%c] argument!\n", argv[1][0]);
         return -1;
     }
+      
     
     return 0;
 }
